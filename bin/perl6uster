@@ -73,7 +73,7 @@ sub MAIN(Str $mode='dir',               int :t(:$threads)=4,
 sub USAGE(:$mode) {
     print Q:c:to/END/;
     Usage:
-      {$*PROGRAM-NAME} {$mode ?? $mode !! '<mode>'} [-options]
+      perl6uster {$mode ?? $mode !! '<mode>'} [-options]
     Global Flags:
       -h                      Use perl6uster <mode> -h for plugin-specific help
       -delay=<int>            Each thread pauses this long between requests
