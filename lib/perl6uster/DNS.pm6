@@ -64,18 +64,16 @@ class plug-dns does perl6uster-plugin {
         sprintf(spc('[+] Resolver')~": %s", $!resolver).note;
         sprintf(spc('[+] Show CNAME')~": %s", $!showCNAME).note;
         sprintf(spc('[+] Show IPs')~": %s", $!showIP).note;
-        sprintf(spc('[+] Timeout')~": %s", $!buster.timeout).note;
     }
 
     method Help() {
         print Q:c:to/END/;
         DNS mode flags:
-          -c                        Show CNAME records (cannot be used with '-i' option)
+          -C                        Show CNAME records (cannot be used with '-i' option)
           -d=<string>               The target domain
           -h                        help for dns
           -i                        Show IP addresses
           -R=<string>               Use custom DNS server (ip address)
-          -to                       DNS resolver timeout (default 1s)
         END
     }
 }

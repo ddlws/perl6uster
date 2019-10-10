@@ -80,6 +80,7 @@ sub USAGE(:$mode) {
                                 '-delay=5' and '-delay=5000ms' both wait 5 seconds
       -filt='/a regex/'       Filter words that match the regex. Can be passed multiple times.
       -mut='s/a/bbb/'         Mutate words with 's///' or 'tr///'. Can be passed multiple times.
+      -sndorig                Send original word along with its mutations (default does not)
       -o=<outfile path>       Output file to write results to (defaults to stdout)
       -pause                  Start perl6uster paused. Use when you want to add filters
                                 without fighting shell quoting.
@@ -88,12 +89,12 @@ sub USAGE(:$mode) {
       -v                      Verbose output (errors)
       -w=<wordlist path>      Path to the wordlist
       -z                      Don't display progress
+      -fw                     Force continued operation when wildcard found
       HTTP Options:
       -auth=<basic|bearer|digest|ntlm>
                               Authentication mode to use. case insensitive
       -a=<UA string>          Set the User-Agent string (default "perl6uster/0.1.0")
       -c=<string>             Cookies to use for the requests
-      -fw                     Force continued operation when wildcard found
       -r                      Follow redirects
       -k                      Skip SSL certificate verification
       -n                      Don't print status codes
