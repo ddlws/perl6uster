@@ -89,7 +89,7 @@ sub USAGE(:$mode) {
       -v                      Verbose output (errors)
       -w=<wordlist path>      Path to the wordlist
       -z                      Don't display progress
-      -fw                     Force continued operation when wildcard found
+      -fw                     Force continued operation when wildcard found (dir & dns)
       HTTP Options:
       -auth=<basic|bearer|digest|ntlm>
                               Authentication mode to use. case insensitive
