@@ -1,12 +1,13 @@
 perl6uster::curl
 ====================================
-# What
+## What
 
-It's a small wrapper around LibCurl::Easy. Libcurl stores headers in a linked list, and repeated calls to LibCurl::Easy.set-header will keep adding to the end of the list. Because I'm lazy, this stores all headers passed on the commandline in `%!hdr`, and calls to set-header do the following:
-    * update `%!hdr`
-    * wipe libcurl's headers
-    * set new headers with the contents of %!hdr
+It's a small wrapper around LibCurl::Easy. Libcurl stores headers in a linked list, and repeated calls to LibCurl::Easy.set-header will keep adding to the end of the list. Dozens of duplicate headers can cause problems. Because I'm lazy, this stores all headers passed on the commandline in `%!hdr`, and calls to set-header do the following: 
+* update `%!hdr`
+* wipe libcurl's headers
+* set new headers with the contents of %!hdr
 
+## Methods
 * method set-header(%header)
     * updates headers with the KV pairs in %header
 * method set-header(Pair $p)
