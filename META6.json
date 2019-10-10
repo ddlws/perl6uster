@@ -1,0 +1,28 @@
+{
+  "name": "perl6uster",
+  "description": "Extendable directory/vhost/dns brute-forcing tool with new tricks.",
+  "version": "0.1.0",
+  "perl": "6.*",
+  "auth": "Dave Lewis",
+  "depends": [
+        "LibCurl::ver<0.9+>",
+        "Term::Choose",
+        "Term::termios",
+        "Net::DNS"
+  ],
+  "build-depends": [],
+  "test-depends": [],
+  "provides": {
+    "perl6uster::buster": "lib/perl6uster/buster.pm6",
+    "perl6uster::options": "lib/perl6uster/options.pm6",
+    "perl6uster::keygrab": "lib/perl6uster/keygrab.pm6",
+    "perl6uster::curl": "lib/perl6uster/curl.pm6",
+    "perl6uster::DIR": "lib/perl6uster/DIR.pm6",
+    "perl6uster::DNS": "lib/perl6uster/DNS.pm6",
+    "perl6uster::VHOST": "lib/perl6uster/VHOST.pm6",
+    "perl6uster::common": "lib/perl6uster/common.pm6"
+  },
+  "resources": [],
+  "license": "Artistic-2.0",
+  "source-url": "https://github.com/ddlws/perl6uster"
+}

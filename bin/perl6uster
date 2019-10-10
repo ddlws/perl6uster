@@ -1,0 +1,108 @@
+#!/usr/bin/env perl6
+use perl6uster::buster;
+our $VERSION = '0.1.0';
+
+my %*SUB-MAIN-OPTS = :named-anywhere;
+sub MAIN(Str $mode='dir',               int :t(:$threads)=4,
+         Str :w(:$wordlist),            Str :o(:$outfile)='',
+         Bool :v(:$verbose)=False,      Bool :q(:$quiet)=False,
+         Bool :n(:$noStatus)=False,     Bool :fw(:$wildcardForced)=False,
+         Bool :z(:$noProgress)=False,   Str :$delay='',
+         Bool :pause(:$paused)=False,   Bool :$h=False,
+         :$filt,                        :$mut,
+         Bool :$sndorig=False,                *%plugopts)
+{
+    my $help = $h;
+    if $help || !?$wordlist {
+        USAGE(:$mode);
+        $help = True;
+    }
+
+    my Buster $b = Buster.new( :$mode, :$threads, :$wordlist, :$outfile, :$noStatus,
+            :$noProgress, :$quiet, :$verbose, :$wildcardForced, :$delay, :$filt, :$mut,
+            :$paused, :$help, :$sndorig, |%plugopts);
+
+    $b.plugin.?PlugInit();
+    #print banner
+    print "\n";
+    if not $b.o.quiet {
+        my $s = DateTime.now.truncated-to('second').Str.split('T');
+        print "=====================================================\n";
+        printf("perl6uster v%s          Dave Lewis\n",$VERSION);
+        print "=====================================================\n";
+        $b.PrintConfig();
+        print "=====================================================\n";
+        print 'Starting perl6uster: '~$s[0]~' '~$s[1].split('-').first~"\n";
+        print "=====================================================\n";
+    }
+
+    #catch ctrl-c
+    signal(SIGINT).tap( {if !$b.o.quiet {print "\n[!] SIGINT received."; }; exit 0; });
+
+    #only setup keygrabs if stdin is a tty
+    $b.setupkeygrab() if $*IN.t;
+
+    #start helper threads
+    my Promise $resthread;
+    my Promise $progthread;
+    $resthread = start {$b.resultWorker();};
+    unless $quiet || $noProgress {$progthread = start {$b.progressWorker()}}
+
+
+    my @workers;
+    #start worker threads
+    for ^$threads {
+        my $cap = $b.plugin.ThreadInit ~~ Hash ?? \(opt=>$b.plugin.ThreadInit()) !! \();
+        @workers.push(start {$b.worker(|$cap)} )
+    }
+
+    await @workers;
+    $b.result-chan.close;
+    await $resthread;
+    $progthread.break if $progthread;
+    $b.clearProgress();
+
+    if not $b.o.quiet {
+        print "=====================================================\n";
+        my $s = DateTime.now.truncated-to('second').Str.split('T');
+        print 'Finished: '~$s[0]~' '~$s[1].split('-').first~"\n";
+        print "=====================================================\n";
+    }
+}
+
+sub USAGE(:$mode) {
+    print Q:c:to/END/;
+    Usage:
+      {$*PROGRAM-NAME} {$mode ?? $mode !! '<mode>'} [-options]
+    Global Flags:
+      -h                      Use perl6uster <mode> -h for plugin-specific help
+      -delay=<int>            Each thread pauses this long between requests
+                                '-delay=5' and '-delay=5000ms' both wait 5 seconds
+      -filt='/a regex/'       Filter words that match the regex. Can be passed multiple times.
+      -mut='s/a/bbb/'         Mutate words with 's///' or 'tr///'. Can be passed multiple times.
+      -o=<outfile path>       Output file to write results to (defaults to stdout)
+      -pause                  Start perl6uster paused. Use when you want to add filters
+                                without fighting shell quoting.
+      -q                      Don't print the banner and other noise
+      -t=<int>                Number of concurrent threads (default 10)
+      -v                      Verbose output (errors)
+      -w=<wordlist path>      Path to the wordlist
+      -z                      Don't display progress
+      HTTP Options:
+      -auth=<basic|bearer|digest|ntlm>
+                              Authentication mode to use. case insensitive
+      -a=<UA string>          Set the User-Agent string (default "perl6uster/0.1.0")
+      -c=<string>             Cookies to use for the requests
+      -fw                     Force continued operation when wildcard found
+      -r                      Follow redirects
+      -k                      Skip SSL certificate verification
+      -n                      Don't print status codes
+      -p=<proxy>              Proxy to use for requests [http(s)://host:port]
+      -to=<duration>          HTTP Timeout (default 10s)
+      -u=<url>                The target URL
+      -H=<string:string>      Specify HTTP headers, -H 'key1: val1' -H 'key2: val2'
+      -P=<password>           Password for authentication
+      -U=<username>           Username for authentication
+      -T=<tokenstring>        Bearer access token for Bearer authentication
+    END
+}
