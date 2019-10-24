@@ -222,7 +222,7 @@ It's just a small wrapper for [Libcurl::Easy](https://github.com/CurtTilmes/perl
 
 You can modify `curlopts` like this `$!buster.curlopts('option' => value);`. Find the list of available options [here.](https://github.com/CurtTilmes/perl6-libcurl#options)
 
-[Libcurl::Easy](https://github.com/CurtTilmes/perl6-libcurl) is great, and you have full access to it through `$client.easy`. Read curldoc.md to see the convenience methods in `perl6uster::curl`.
+[Libcurl::Easy](https://github.com/CurtTilmes/perl6-libcurl) is great, and you have full access to it through `$client.easy`. Read [curldoc.md](https://github.com/ddlws/perl6uster/blob/master/curldoc.md) to see the convenience methods in `perl6uster::curl`.
 
 ### method PlugInit()
 This is where you do initialization/configuration before worker threads start. This example is an excerpt from the vhost plugin. It's updating a libcurl option (use HEAD requests) that'll affect the worker threads later.
