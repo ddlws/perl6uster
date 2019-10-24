@@ -164,7 +164,7 @@ class Buster {
             $res = $!result-chan.receive;
             if $res.Hit || $!o.verbose {
                 my $out = $!plugin.ResultToString($res);
-                if $!o.outfile { $fh.print: $out;}
+                if $!o.outfile { $fh.put: $out;}
                 self.clearProgress();
                 say $out;
             }
