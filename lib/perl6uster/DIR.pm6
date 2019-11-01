@@ -12,12 +12,19 @@ class plug-dir does perl6uster-plugin {
     has Str $!target;
     has Str $!url-dom;
     has Str $!slash='';
+    has Bool $!backups=False;
+    has Bool $!extonly=False;
+
+    #not an attr because it's used in a regex
+    my Str @src-extensions = <php asp>;
 
     submethod TWEAK(Buster :$!buster,
                 Str :x(:$extensions),           :b(:$blscodes),
                 Str :s(:$scodes)='200,204,301,302,307,401,403',
                 Bool :f(:$!useSlash),           Bool :l(:$!include-length),
-                Bool :e(:$!expanded),           *%opts)
+                Bool :e(:$!expanded),           *%opts,
+                Bool :bk(:$!backups),            Bool :xo(:$!extonly)
+                )
     {
         unless $!buster.url {dwd('A URL is required',$?FILE, $?LINE) }
         $!buster.url ~~ /(https?\:\/\/<-[ / ]>+)(\/.*)?/;
@@ -60,12 +67,24 @@ class plug-dir does perl6uster-plugin {
     method Process(Str $word, :%opt) {
         #return Nil if $word ~~ /"\t"/; #tabs were causing too many casualties
         my Result @resp;
-        my $tmp = self.GetRequest($!target~$word~$!slash,%opt<client>);
-        @resp.push($tmp);
+        my Result $tmp;
+        unless $!extonly {
+            $tmp = self.GetRequest($!target~$word~$!slash,%opt<client>);
+            @resp.push($tmp);
+        }
         #extensions
         for @!exts {
             $tmp = self.GetRequest($!target~$word~'.'~$_, %opt<client>);
             @resp.push: $tmp;
+        }
+        #check for backup/temp files if we hit something with the right extensions
+        if $!backups {
+            for @resp {
+                if $_.Entity ~~ / \. {@src-extensions} / {
+                    $tmp = self.GetRequest($!target~$_.Entity~'~', %opt<client>);
+                    @resp.push: $tmp;
+                }
+            }
         }
         return @resp;
     }
