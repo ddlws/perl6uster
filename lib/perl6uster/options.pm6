@@ -25,12 +25,14 @@ class Options {
             @errors.push(sprintf("Threads (-t): Invalid value: %d",$!threads));
         }
         #-w
-        unless $!wordlist.IO ~~ :e {
-            @errors.push(sprintf("Wordlist (-w): File does not exist: %s",$!wordlist));
-        }
-        unless $!wordlist.IO ~~ :r {
-            @errors.push(sprintf("Wordlist (-w): File is not readable: %s",
-                    $!wordlist));
+        if ?$!wordlist {
+            unless $!wordlist.IO ~~ :e {
+                @errors.push(sprintf("Wordlist (-w): File does not exist: %s",$!wordlist));
+            }
+            unless $!wordlist.IO ~~ :r {
+                @errors.push(sprintf("Wordlist (-w): File is not readable: %s",
+                        $!wordlist));
+            }
         }
         #-o
         if $!outfile {
@@ -75,6 +77,7 @@ class OptionsHTTP {
 	has Bool $.insecureSSL;
     has Str $.auth;
     has Str $.token;
+    has Str $.HTTPmethod;
     has %.curlopts is rw;
 
     #pasted here so we can setup options without importing again.
@@ -97,7 +100,7 @@ class OptionsHTTP {
                     Int :to(:$!timeout)=10,         Bool :r(:$!followRedirect)=False,
                     Bool :k(:$!insecureSSL)=False,  :H(:$argheaders),
                     Bool :h($help),                 Str :$!auth,
-                    Str :T(:$!token)
+                    Str :T(:$!token),               Str :meth(:$!HTTPmethod)='head'
                     )
     {
 
@@ -115,7 +118,7 @@ class OptionsHTTP {
         }
         #set libcurl options
         %!curlopts<failonerror> = 0;
-        %!curlopts<nobody> = 1;
+
 
         #handle command line args
         #-f
@@ -145,6 +148,11 @@ class OptionsHTTP {
         #-U
         if ?$!username && not $!password { $!password = askpass() }
 
+        #-meth
+        given $!HTTPmethod.fc {
+            when 'get'.fc {%!curlopts<nobody> = 0}
+            when 'head'.fc {%!curlopts<nobody> = 1}
+        }
         #auth stuff
         if ?$!auth {
             given $!auth {

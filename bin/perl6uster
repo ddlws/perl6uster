@@ -13,7 +13,7 @@ sub MAIN(Str $mode='dir',               int :t(:$threads)=4,
          Bool :$sndorig=False,                *%plugopts)
 {
     my $help = $h;
-    if $help || !?$wordlist {
+    if ?$help {
         USAGE(:$mode);
         $help = True;
     }
@@ -85,7 +85,7 @@ sub USAGE(:$mode) {
       -pause                  Start perl6uster paused. Use when you want to add filters
                                 without fighting shell quoting.
       -q                      Don't print the banner and other noise
-      -t=<int>                Number of concurrent threads (default 10)
+      -t=<int>                Number of concurrent threads (default: 10)
       -v                      Verbose output (errors)
       -w=<wordlist path>      Path to the wordlist
       -z                      Don't display progress
@@ -99,11 +99,12 @@ sub USAGE(:$mode) {
       -k                      Skip SSL certificate verification
       -n                      Don't print status codes
       -p=<proxy>              Proxy to use for requests [http(s)://host:port]
-      -to=<duration>          HTTP Timeout (default 10s)
+      -to=<duration>          HTTP Timeout (default: 10s)
       -u=<url>                The target URL
       -H=<string:string>      Specify HTTP headers, -H 'key1: val1' -H 'key2: val2'
       -P=<password>           Password for authentication
       -U=<username>           Username for authentication
       -T=<tokenstring>        Bearer access token for Bearer authentication
+      -meth=<string>          HTTP method to use ('get','head') (default: head)
     END
 }

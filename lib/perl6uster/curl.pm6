@@ -13,6 +13,7 @@ class curl {
                 $!easy.getinfo('effective-url'),$?FILE,$?LINE) }
         CATCH {
             when X::LibCurl {
+                #if $_.Int() == 1 { $!easy.setopt('nobody'=>0); self.perform; }
                 dwd("libcurl threw\nErrno $_.Int() : $_\nError: {$!easy.error}",
                         $?FILE,$?LINE);
             }

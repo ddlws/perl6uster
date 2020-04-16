@@ -91,13 +91,12 @@ class Buster {
         }
         #wordlist is a regular file. starts thread to send lines over the word channel
         if $!o.wordlist {
-            start {
-                my $malformedutf8 = $!o.wordlist.IO.open(:r,:enc('utf8-c8'));
-                $!num-words = $malformedutf8.IO.lines.elems;
-                for $malformedutf8.lines { $!word-chan.send($_) }
-                $!word-chan.close();
-                $malformedutf8.close;
-            }
+            $!num-words = $!o.wordlist.IO.lines(:close).elems;
+            $!word-chan = supply {
+                whenever start $!o.wordlist.IO.open(:r,:enc('utf8-c8')).Supply {
+                    whenever .lines {.emit}
+                }
+            }.Channel;
         }
         #wordlist is stdin. makes a supply of stdin and emits lines over word channel.
         else {
